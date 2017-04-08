@@ -1,0 +1,12 @@
+name: crystal-parsec
+version: 0.0.1
+
+license: MIT
+
+dependencies:
+  crz:
+    git: https://github.com/dhruvrajvanshi/crz.git
+    version: ~> 0.0.2
+
+author:
+  - Dhruv Rajvanshi <dhruvrajvanshi@outlook.com>
