@@ -5,8 +5,8 @@ license: MIT
 
 dependencies:
   crz:
-    git: https://github.com/dhruvrajvanshi/crz.git
-    version: ~> 0.0.2
+    git: https://github.com/dhruvrajvanshi/crz
+    version: ~> 0.0.3
 
 author:
   - Dhruv Rajvanshi <dhruvrajvanshi@outlook.com>
