@@ -70,11 +70,11 @@ module Parsec
       mdo({
         result <= self,
         _ <= p,
-        Parser.pure(result)
+        Parser.of(result)
       })
     end
 
-    def self.pure(v : T) : Parser(T) forall T
+    def self.of(v : T) : Parser(T) forall T
       Parser(T).new do |state|
         ParseResult::Success(T).new v, state
       end
@@ -101,7 +101,7 @@ module Parsec
 
   def string(s : String) : Parser(String)
     if s.size == 0
-      Parser.pure ""
+      Parser.of ""
     elsif s.size == 1
       (char s[0]).map {|x| x.to_s}
     else
@@ -110,7 +110,7 @@ module Parsec
       mdo({
         c <= char(x),
         rest <= string(xs).as(Parser(String)),
-        Parser.pure(x + rest)
+        Parser.of(x + rest)
       })
     end
   end
@@ -156,7 +156,7 @@ module Parsec
     mdo({
       x <= p,
       xs <= many(p),
-      Parser.pure(xs.unshift x)
+      Parser.of(xs.unshift x)
     })
   end
 
@@ -165,10 +165,10 @@ module Parsec
       x <= p,
       s <= seperator,
       xs <= sep_by(p, seperator).as Parser(Array(T)),
-      Parser.pure(xs.unshift x)
+      Parser.of(xs.unshift x)
     }) |
     (p.map {|x| [x]}) |
-    Parser.pure([] of T)
+    Parser.of([] of T)
   end
 
   def lowercase
