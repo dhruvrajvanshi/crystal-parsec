@@ -2,6 +2,10 @@
 This is a parsing library for the Crystal language inspired by the Haskell library
 Parsec. It allows you to build parsers by combining smaller parsers.
 
+It is based on the functional programming library
+[crz](https://github.com/dhruvrajvanshi/crz) which
+adds ADTs and monadic do notation to the language.
+
 ## Quickstart
 ```crystal
 require "parsec"
