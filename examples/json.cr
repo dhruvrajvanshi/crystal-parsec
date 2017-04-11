@@ -30,6 +30,7 @@ end
 def optional_whitespace
   many(one_of "\n\t ")
 end
+
 def json_p : Parser(JSON)
   array_p | bool_p | null_p | jstring_p | number_p | object_p
 end
@@ -47,17 +48,17 @@ def false_p
 end
 
 def null_p
-  string("null") >> Parser.pure(JNull.new.as JSON)
+  string("null") >> Parser.of(JNull.new.as JSON)
 end
 def comma
-  comma = optional_whitespace >> char(',') >> optional_whitespace
+  optional_whitespace >> char(',') >> optional_whitespace
 end
 def array_p
   mdo({
     _   <= char('['),
     arr <= sep_by(json_p.as Parser(JSON), comma),
     _   <= char(']'),
-    Parser.pure(JArray.new(arr))
+    Parser.of(JArray.new(arr))
   }).map {|a| a.as JSON }
 end
 
@@ -72,7 +73,7 @@ def string_p
       ),
     _ <= char('"'),
     str = (arr.reduce {|prev, current| prev + current}),
-    Parser.pure(str)
+    Parser.of(str)
   })
 end
 
@@ -96,7 +97,7 @@ def float_p
     after <= (many_1(digit).map {|a| concatenate(a)}),
     num = (before + "." + after).to_f,
     json = (JNumber.new num).as(JSON),
-    Parser.pure(json)
+    Parser.of(json)
   })
 end
 
@@ -117,7 +118,7 @@ def object_pair
     _ <= char(':'),
     _ <= optional_whitespace,
     value <= json_p.as(Parser(JSON)),
-    Parser.pure({key, value})
+    Parser.of({key, value})
   })
 end
 
@@ -130,7 +131,7 @@ def create_object(arr : Array({String, JSON})) : Parser(JSON)
       map[tuple[0]] = tuple[1]
     end
   end
-  Parser.pure((JObject.new map).as(JSON))
+  Parser.of((JObject.new map).as(JSON))
 end
 
 def object_p
@@ -141,13 +142,6 @@ def object_p
     create_object(pairs)
   })
 end
-
-
-# pp array_p.parse("[true , false, null, [null, true]]")
-pp json_p.parse("\"a\\\\\\nsdf\"")
-pp int_p.parse("123.234")
-
-pp object_pair.parse("\"key\"  :  23")
 
 pp object_p.parse("{
     \"key\": 23,

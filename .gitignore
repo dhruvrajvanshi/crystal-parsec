@@ -2,3 +2,5 @@
 /.shards/
 /lib/
 shard.lock
+
+test.cr
