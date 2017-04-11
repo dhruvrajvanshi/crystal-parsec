@@ -30,7 +30,7 @@ It's type is ```Parser(Char)```
 ```crystal
 p = char 'c'
 p.parse("c") # => 'c'
-p.parse("d").message # => ParseError
+p.parse("d").message # => "Expected character 'c', found 'd'"
 ```
 
 ```string``` parser parses a fixed string.
