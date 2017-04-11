@@ -85,7 +85,7 @@ that parser. It's type is ```Parser(A) -> Parser(Array(A))```
 ```crystal
 many(digit).parse("") # => []
 many(digit).parse("1") # => ['1']
-many(digit).parse("1234) # => ['1', '2', '3', '4']
+many(digit).parse("1234") # => ['1', '2', '3', '4']
 ```
 
 #### many_1
