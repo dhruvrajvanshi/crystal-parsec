@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.26.0">
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="js/doc.js"></script>
+<script type="text/javascript">
+  CrystalDoc.base_path = "";
+</script>
+
+  <meta id="repository-name" content="github.com/dhruvrajvanshi/crystal-parsec">
+  <title>README - github.com/dhruvrajvanshi/crystal-parsec</title>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false">
+    </div>
+
+    <div class="repository-links">
+      <a href="index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec" data-name="parsec">
+      <a href="Parsec.html">Parsec</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/ParseError" data-name="parsec::parseerror">
+      <a href="Parsec/ParseError.html">ParseError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/Parser" data-name="parsec::parser(a)">
+      <a href="Parsec/Parser.html">Parser</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/ParseResult" data-name="parsec::parseresult(t)">
+      <a href="Parsec/ParseResult.html">ParseResult</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/ParseResult/Error" data-name="parsec::parseresult::error(t)">
+      <a href="Parsec/ParseResult/Error.html">Error</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/ParseResult/Success" data-name="parsec::parseresult::success(t)">
+      <a href="Parsec/ParseResult/Success.html">Success</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/dhruvrajvanshi/crystal-parsec/Parsec/ParseState" data-name="parsec::parsestate">
+      <a href="Parsec/ParseState.html">ParseState</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1>crystal-parsec <a href="https://travis-ci.org/dhruvrajvanshi/crystal-parsec" target="_blank"><img src="https://travis-ci.org/dhruvrajvanshi/crystal-parsec.svg?branch=master" alt="Build Status"/></a></h1>
+
+<p>This is a parsing library for the Crystal language inspired by the Haskell library
+Parsec. It allows you to build parsers by combining smaller parsers.</p>
+
+<p>It is based on the functional programming library
+<a href="https://github.com/dhruvrajvanshi/crz" target="_blank">crz</a> which
+adds ADTs and monadic do notation to the language.</p>
+
+<h2>Quickstart</h2>
+
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;parsec&quot;</span>
+<span class="k">include</span> <span class="t">Parsec</span></code></pre>
+
+<h3>Basics</h3>
+
+<p>A <code></code><code>Parser(T)</code><code></code> is a parser that parses a value of type T.</p>
+
+<pre><code class="language-crystal">p : <span class="t">Parser</span>(<span class="t">T</span>)</code></pre>
+
+<p>You can call .parse method on a parser with an input string to parse.
+It returns either a value of type T on successful parsing or a <code></code><code><a href="Parsec/ParseError.html">Parsec::ParseError</a></code><code></code>
+with an error message (return type <code></code><code>T | ParseError</code><code></code>.</p>
+
+<pre><code class="language-crystal">p.parse <span class="s">&quot;some input string&quot;</span></code></pre>
+
+<p><code></code><code>ParseError</code><code></code> has a .message field that gives a human readable error message.</p>
+
+<h3>Basic parsers</h3>
+
+<p>The simplest parser is a char parser that parses and returns a single character.
+It's type is <code></code><code>Parser(Char)</code><code></code></p>
+
+<pre><code class="language-crystal">p <span class="o">=</span> char <span class="s">&#39;c&#39;</span>
+p.parse(<span class="s">&quot;c&quot;</span>) <span class="c"># =&gt; &#39;c&#39;</span>
+p.parse(<span class="s">&quot;d&quot;</span>).message <span class="c"># =&gt; &quot;Expected character &#39;c&#39;, found &#39;d&#39;&quot;</span></code></pre>
+
+<p><code></code><code>string</code><code></code> parser parses a fixed string.</p>
+
+<pre><code class="language-crystal">string(<span class="s">&quot;asdf&quot;</span>).parse(<span class="s">&quot;asdf&quot;</span>) <span class="c"># =&gt; &quot;asdf&quot;</span>
+string(<span class="s">&quot;asdf&quot;</span>).parse(<span class="s">&quot;x&quot;</span>) <span class="c"># =&gt; ParseError(&quot;Expected character &#39;a&#39;, found &#39;x&#39;&quot;)</span></code></pre>
+
+<p><code></code><code>one_of</code><code></code> takes a string and returns a parser that
+matches one of the characters in the given string.</p>
+
+<pre><code class="language-crystal">one_of(<span class="s">&quot;abcd&quot;</span>).parse(<span class="s">&quot;a&quot;</span>) <span class="c"># =&gt; &#39;a&#39;</span>
+one_of(<span class="s">&quot;abcd&quot;</span>).parse(<span class="s">&quot;c&quot;</span>) <span class="c"># =&gt; &#39;c&#39;</span>
+one_of(<span class="s">&quot;abcd&quot;</span>).parse(<span class="s">&quot;2&quot;</span>) <span class="c"># =&gt; ParseError</span></code></pre>
+
+<p><code></code><code>none_of</code><code></code> takes a string and returns a parser that
+matches all characters except the ones in the given string.</p>
+
+<pre><code class="language-crystal">none_of(<span class="s">&quot; \n\t&quot;</span>).parse(<span class="s">&quot;a&quot;</span>) <span class="c"># =&gt; &#39;a&#39;</span></code></pre>
+
+<p><code></code><code>Parser.of</code><code></code> takes a value and returns a parser that consumes no input,
+and returns the given value unconditionally. What's the use of this
+parser? It's useful for sequencing as you'll see later.</p>
+
+<pre><code class="language-crystal"><span class="t">Parser</span>.<span class="k">of</span>(<span class="n">2</span>).parse(<span class="s">&quot;asdf&quot;</span>) <span class="c"># =&gt; 2</span>
+<span class="t">Parser</span>.<span class="k">of</span>(<span class="s">&quot;asdf&quot;</span>).parse(<span class="s">&quot;&quot;</span>) <span class="c"># =&gt; &quot;asdf&quot;</span></code></pre>
+
+<p><code></code><code>fail</code><code></code> takes an error message and returns a parser that
+unconditionally fails using the given message. This is useful for error 
+handling.</p>
+
+<h3>Combining parsers</h3>
+
+<h4>Or combinator</h4>
+
+<p>The <code></code><code>|</code><code></code> operator on parsers returns a parser that matches both the
+parser on it's LHS and RHS. It first tries the LHS, if it fails, then
+tries RHS.</p>
+
+<pre><code class="language-crystal">digit <span class="o">=</span> one_of <span class="s">&quot;1234567890&quot;</span>
+alphabet <span class="o">=</span> one_of <span class="s">&quot;qwertyuiopasdfghjklzxcvbnm&quot;</span>
+alphanum <span class="o">=</span> digit <span class="o">|</span> alphabet
+alphanum.parse(<span class="s">&quot;a&quot;</span>) <span class="c"># =&gt; &#39;a&#39;</span>
+alphanum.parse(<span class="s">&quot;1&quot;</span>) <span class="c"># =&gt; &#39;1&#39;</span></code></pre>
+
+<p>Both sides of the <code></code><code>|</code><code></code> operator should be of the same type. You cannot,
+for example combine a <code></code><code>Parser(Char)</code><code></code> and a <code></code><code>Parser(String)</code><code></code>.</p>
+
+<h4>many</h4>
+
+<p>It takes a parser and returns a parser that parses 0 or more instances of
+that parser. It's type is <code></code><code>Parser(A) -> Parser(Array(A))</code><code></code></p>
+
+<pre><code class="language-crystal">many(digit).parse(<span class="s">&quot;&quot;</span>) <span class="c"># =&gt; []</span>
+many(digit).parse(<span class="s">&quot;1&quot;</span>) <span class="c"># =&gt; [&#39;1&#39;]</span>
+many(digit).parse(<span class="s">&quot;1234&quot;</span>) <span class="c"># =&gt; [&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;]</span></code></pre>
+
+<h4>one_or_more</h4>
+
+<p>It is like many, but it needs atleast one instance. It won't return
+an empty array.</p>
+
+<pre><code class="language-cystal">one_or_more(digit).parse("") # => ParseError
+one_or_more(digit).parse("2") # => ['2']</code></pre>
+
+<h4>sep_by</h4>
+
+<p>It takes two parsers. It parses an array of first parser, seperated by
+the second parser.</p>
+
+<pre><code class="language-crystal">sep_by(digit, char(<span class="s">&#39;,&#39;</span>))
+  .parse(<span class="s">&quot;1,2,3,4&quot;</span>) <span class="c"># =&gt; [&#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;]</span></code></pre>
+
+<h4>Transforming the result of parsers</h4>
+
+<p>The .map method on parsers is used to transform the result of a given
+parser using a given block. It takes a block and returns a parser that
+parses using <code></code><code>self</code><code></code> and passes the result through the block.</p>
+
+<pre><code class="language-crystal"><span class="c"># take a char array and concatenate it&#39;s elements</span>
+<span class="c"># into a string</span>
+<span class="k">def</span> <span class="m">concatenate</span>(arr)
+  result <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    arr.each <span class="k">do</span> <span class="o">|</span>char<span class="o">|</span>
+      result += char.to_s
+    <span class="k">end</span>
+  result
+<span class="k">end</span>
+
+puts many_1(digit)
+  .map {<span class="o">|</span>arr<span class="o">|</span> concatenate(arr) } <span class="c"># concatenate</span>
+  .map {<span class="o">|</span>x<span class="o">|</span> x.to_i } <span class="c"># convert to int</span>
+  .parse(<span class="s">&quot;233&quot;</span>) <span class="c"># =&gt; 233</span></code></pre>
+
+<h4>Sequencing parsers</h4>
+
+<p>You can sequence multiple parsers using the bind method.
+The type signature of bind is <code></code><code>(A -> Parser(B)) : Parser(B)</code><code></code> where
+<code></code><code>Parser(A)</code><code></code> is the type of the parser it is called on.
+It takes the result of the parser it is called on, passes the result to
+the supplied block and returns the result of the block. It is like map
+but instead of taking a block that returns a value, it takes a block that
+returns another parser. This is used when you want to parse using multiple
+parsers in sequence possibly using the result of each step for the next.</p>
+
+<pre><code class="language-crystal">alphabets <span class="o">=</span> many_1(alphabet).map {<span class="o">|</span>arr<span class="o">|</span> concatenate(arr) }
+digits    <span class="o">=</span> many_1(digit).map {<span class="o">|</span>arr<span class="o">|</span> concatenate(arr) }
+  .map {<span class="o">|</span>x<span class="o">|</span> x.to_i }
+parser <span class="o">=</span> alphabets.bind <span class="k">do</span> <span class="o">|</span>name<span class="o">|</span>
+  digits.bind <span class="k">do</span> <span class="o">|</span>number<span class="o">|</span>
+    <span class="t">Parser</span>.<span class="k">of</span>({name, number})
+  <span class="k">end</span>
+<span class="k">end</span>
+parser.parse(<span class="s">&quot;asdf23&quot;</span>) <span class="c"># =&gt; {&quot;asdf&quot;, 23}</span></code></pre>
+
+<p>When you want to sequence a lot of parsers, nested binds can become
+tedious and unreadable. To solve this problem, you can flatten out
+bind sequences using the <a href="https://github.com/dhruvrajvanshi/crz" target="_blank">crz</a>
+macro <code></code><code>mdo</code><code></code>. Using the macro, the previous parser would look like
+this</p>
+
+<pre><code class="language-crystal">mdo({
+  name <span class="o">&lt;=</span> alphabets,
+  number <span class="o">&lt;=</span> digits,
+  <span class="t">Parser</span>.<span class="k">of</span>({name, number})
+})</code></pre>
+
+<p>This is much more readable in sequences of multiple parsers.
+You can use regular assignments in mdo blocks too.</p>
+
+<pre><code class="language-crystal">mdo({
+  name <span class="o">&lt;=</span> alphabets,
+  num_arr <span class="o">&lt;=</span> many_1(digit),
+  concatenated <span class="o">=</span> concatenate(num_arr),
+  number <span class="o">=</span> concatenated.to_i,
+  <span class="t">Parser</span>.<span class="k">of</span>({name, number})
+}).parse(<span class="s">&quot;asdf123&quot;</span>) <span class="c"># =&gt; {&quot;asdf&quot;, 123}</span></code></pre>
+
+<p>Use <code></code><code><=</code><code></code> when the RHS is a parser and <code></code><code>=</code><code></code> when it is a normal
+value.</p>
+
+<p>Always make sure that the last line in an mdo block is wrapped in a
+parser using Parser.of.</p>
+
+<h4>Mutual recursion</h4>
+
+<p>If you have multiple parsers that depend on each other, you can wrap
+them in a block so that they can be referred to before definition.</p>
+
+<pre><code class="language-crystal"><span class="k">def</span> <span class="m">value_p</span>
+  number_p <span class="o">|</span> string_p <span class="o">|</span> array_p
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="m">array_p</span>
+  mdo({
+    UNDERSCORE <span class="o">&lt;=</span> char(<span class="s">&#39;[&#39;</span>),
+    arr <span class="o">&lt;=</span> sep_by(value_p, char(<span class="s">&#39;,&#39;</span>)),
+    UNDERSCORE <span class="o">&lt;=</span> char(<span class="s">&#39;]&#39;</span>)
+    <span class="t">Parser</span>.<span class="k">of</span>(arr)
+  })
+<span class="k">end</span></code></pre>
+
+<p>For recursive and mutually recursive parsers, you may need to cast
+parsers to their type because type inference may not be able to infer
+their types.</p>
+
+<p>For example, this is directly from the JSON example in the examples
+directory.</p>
+
+<pre><code class="language-crystal"><span class="k">def</span> <span class="m">json_p</span> : <span class="t">Parser</span>(<span class="t">JSON</span>)
+  array_p <span class="o">|</span> bool_p <span class="o">|</span> null_p <span class="o">|</span> jstring_p <span class="o">|</span> number_p <span class="o">|</span> object_p
+<span class="k">end</span>
+
+<span class="k">def</span> <span class="m">array_p</span>
+  mdo({
+    UNDERSCORE   <span class="o">&lt;=</span> char(<span class="s">&#39;[&#39;</span>),
+    arr <span class="o">&lt;=</span> sep_by(json_p.<span class="k">as</span> <span class="t">Parser</span>(<span class="t">JSON</span>), comma),
+    UNDERSCORE   <span class="o">&lt;=</span> char(<span class="s">&#39;]&#39;</span>),
+    <span class="t">Parser</span>.<span class="k">of</span>(<span class="t">JArray</span>.<span class="k">new</span>(arr))
+  }).map {<span class="o">|</span>a<span class="o">|</span> a.<span class="k">as</span> <span class="t">JSON</span> }
+<span class="k">end</span></code></pre>
+
+<p>Notice that even though return type of json_p is annotated, it still
+needs to be cast to Parser(JSON) when being used in array_p using .as
+method.</p>
+
+<h4>Other combinators</h4>
+
+<p>The <code></code><code>>></code><code></code> operator is used to sequence two parsers and discard the
+result of the left parser, returning the result of the right parser.</p>
+
+<pre><code class="language-crystal">p <span class="o">=</span> string(<span class="s">&quot;asdf&quot;</span>) <span class="o">&gt;&gt;</span> string(<span class="s">&quot;abcd&quot;</span>)
+p.parse(<span class="s">&quot;asdfabcd&quot;</span>) <span class="c"># =&gt; &quot;abcd&quot;</span></code></pre>
+
+<p>The <code></code><code><<</code><code></code> operator sequences parsers but returns the result of the
+first parser, ignoring the result of second parser.</p>
+
+<pre><code class="language-crystal">p <span class="o">=</span> string(<span class="s">&quot;asdf&quot;</span>) <span class="o">&lt;&lt;</span> string(<span class="s">&quot;abcd&quot;</span>)
+p.parse(<span class="s">&quot;asdfabcd&quot;</span>) <span class="c"># =&gt; &quot;asdf&quot;</span></code></pre>
+
+<h3>Custom parsers</h3>
+
+<p>You can create custom parsers by calling <code></code><code>Parser.new</code><code></code> with block
+argument  of type <code>ParseState -> ParseResult(A)</code> where A is the result
+type of your parser.
+ParseState has two members, <code>.input</code> and <code>.offset</code>. <code>input</code>
+is the input string and <code>offset</code> is the current index into the input
+string.
+ParseResult is an abstract base class with two constructors,
+<code>ParseState::Error(A).new "Error message"</code>, indicating parse error,
+and <code>ParseState::Success.new(result, new_state)</code> indicating success.
+To create a new <code>ParseState</code> from an existing state, you can call the
+<code>.advance</code> method with an integer argument indicating the number of
+characters you want to advance by. If argument is not given, it advances
+by one character. <code>advance</code></p>
+
+<p>For example, here's the implementation of the <code>char</code> function.</p>
+
+<pre><code class="language-crystal"><span class="k">def</span> <span class="m">char</span>(c : <span class="t">Char</span>) : <span class="t">Parser</span>(<span class="t">Char</span>)
+  <span class="t">Parser</span>.<span class="k">new</span> <span class="k">do</span> <span class="o">|</span>state<span class="o">|</span>
+    <span class="k">if</span> state.offset <span class="o">&gt;=</span> state.input.size
+      <span class="t">ParseResult</span><span class="t">::</span><span class="t">Error</span>(<span class="t">Char</span>).<span class="k">new</span> <span class="s">&quot;Expected &#39;</span><span class="i">#{</span>c<span class="i">}</span><span class="s">&#39; found end of string&quot;</span>
+    <span class="k">elsif</span> state.input[state.offset] <span class="o">==</span> c
+      <span class="t">ParseResult</span><span class="t">::</span><span class="t">Success</span>.<span class="k">new</span> c, state.advance
+    <span class="k">else</span>
+      <span class="t">ParseResult</span><span class="t">::</span><span class="t">Error</span>(<span class="t">Char</span>).<span class="k">new</span> <span class="s">&quot;Expected &#39;</span><span class="i">#{</span>c<span class="i">}</span><span class="s">&#39; found &#39;</span><span class="i">#{</span>state.input[state.offset]<span class="i">}</span><span class="s">&#39;&quot;</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+
+<p>Check out the <a href="https://github.com/dhruvrajvanshi/crystal-parsec/blob/master/examples/json.cr" target="_blank">json example</a> for a partial JSON parser example.</p>
+</div>
+</body>
+</html>

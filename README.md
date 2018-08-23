@@ -88,9 +88,14 @@ many(digit).parse("1") # => ['1']
 many(digit).parse("1234") # => ['1', '2', '3', '4']
 ```
 
-#### many_1
+#### one_or_more
 It is like many, but it needs atleast one instance. It won't return
 an empty array.
+
+```cystal
+one_or_more(digit).parse("") # => ParseError
+one_or_more(digit).parse("2") # => ['2']
+```
 
 #### sep_by
 It takes two parsers. It parses an array of first parser, seperated by

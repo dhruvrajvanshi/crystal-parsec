@@ -46,8 +46,8 @@ describe Parser do
     p.parse("ccc").should eq ['c', 'c', 'c']
   end
 
-  it "Parsec::many_1" do
-    p = many_1 (char 'c')
+  it "Parsec::one_or_more" do
+    p = one_or_more (char 'c')
     p.parse("").class.should eq ParseError
     p.parse("c").should eq ['c']
     p.parse("cc").should eq ['c', 'c']
@@ -75,5 +75,14 @@ describe Parser do
   it "Parser#map" do
     p = Parser.of(2).map {|x| x + 1}
     p.parse("").should eq 3
+  end
+
+  it "Parser#pass_through" do
+    px = one_or_more(digit)
+      .pass_through(string "px")
+      .map {|x| x.join() }
+      .map {|x| x.to_i }
+    px.parse("10px").should eq 10
+    px.parse("10").class.should eq ParseError
   end
 end

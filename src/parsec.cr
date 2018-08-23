@@ -36,6 +36,8 @@ module Parsec
       @block = block
     end
 
+    # Run this parser, returning either a `ParseError`, or
+    # the result
     def parse(input : String) : (A | ParseError)
       initial_state = ParseState.new input, 0
       result = @block.call initial_state
@@ -45,6 +47,10 @@ module Parsec
       }
     end
 
+    # Sequence another parser after this parser.
+    # Takes a function that takes the result of this
+    # parser and returns a new parser using the result.
+    # If this parser fails, parsing is short circuited
     def bind(&f : A -> Parser(B)) : Parser(B) forall B
       Parser(B).new do |state|
         ParseResult.match (@block.call state), ParseResult(A), {
@@ -54,6 +60,9 @@ module Parsec
       end
     end
 
+    # Combine another parser of the same type with
+    # this parser. If this parser fails, try using
+    # the given parser.
     def |(p2 : Parser(A)) : Parser(A)
       f1 = @block
       f2 = p2.block
@@ -66,6 +75,18 @@ module Parsec
       end
     end
 
+    # Sequence another parser after this parser,
+    # ignoring the result of the second one, and returning
+    # the result of this parser.
+    #
+    # ```
+    # px = one_or_more(digit)
+    #   .pass_through(string "px")
+    #   .map {|x| x.join() }
+    #   .map {|x| x.to_i }
+    # px.parse("10px").should eq 10
+    # px.parse("10").class.should eq ParseError
+    # ```
     def pass_through(p : Parser(B)) : Parser(A) forall B
       mdo({
         result <= self,
@@ -152,12 +173,17 @@ module Parsec
     end
   end
 
-  def many_1(p : Parser(T)) : Parser(Array(T)) forall T
+  def one_or_more(p : Parser(T)) : Parser(Array(T)) forall T
     mdo({
       x <= p,
       xs <= many(p),
       Parser.of(xs.unshift x)
     })
+  end
+
+  # DEPRECATED: Use `one_or_more`
+  def many_1(p : Parser(T)) : Parser(Array(T)) forall T
+    one_or_more p
   end
 
   def sep_by(p : Parser(T), seperator : Parser(U)) : Parser(Array(T)) forall T, U
